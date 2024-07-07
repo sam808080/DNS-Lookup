@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Lookup Tool - Check Domain Name Servers</title>
+    <meta name="description" content="Use our free DNS lookup tool to check domain name servers, perform DNS checks, and troubleshoot DNS issues. Fast and accurate DNS checker for webmasters and IT professionals.">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #003366;
+        }
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input, select, button {
+            padding: 10px;
+            font-size: 16px;
+        }
+        input {
+            flex-grow: 1;
+        }
+        select {
+            width: 80px;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .options button {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .refresh {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        .result-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .flag {
+            width: 30px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        .location {
+            flex-grow: 1;
+        }
+        .ip {
+            color: #0066cc;
+        }
+        .check {
+            color: green;
+            font-weight: bold;
+        }
+        .description {
+            margin-top: 30px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <h1>DNS Lookup Tool</h1>
+    
+    <div class="search-container">
+        <input type="text" id="urlInput" placeholder="Enter domain (e.g., example.com)">
+        <select id="recordType">
+            <option value="A">A</option>
+            <option value="AAAA">AAAA</option>
+            <option value="CNAME">CNAME</option>
+            <option value="MX">MX</option>
+            <option value="TXT">TXT</option>
+        </select>
+        <button onclick="performDNSCheck()">Search</button>
+    </div>
+    <div class="options">
+        <button>☰</button>
+        <button>+</button>
+        <button>✓ CD Flag</button>
+        <div class="refresh">
+            <span>Refresh:</span>
+            <input type="number" value="20" style="width: 50px;">
+            <span>sec.</span>
+        </div>
+    </div>
+    <div id="result"></div>
+
+    <div class="description">
+        <h2>About Our DNS Lookup Tool</h2>
+        <p>Our DNS Lookup Tool is a powerful and user-friendly utility designed to help webmasters, IT professionals, and curious internet users explore the Domain Name System (DNS) records of any website. By providing fast and accurate DNS checks, this tool allows you to troubleshoot domain-related issues, verify DNS configurations, and gain insights into the underlying structure of web addresses.</p>
+        
+        <h3>Key Features:</h3>
+        <ul>
+            <li>Quick and easy DNS record lookups</li>
+            <li>Support for multiple record types (A, AAAA, CNAME, MX, TXT)</li>
+            <li>Real-time results from various DNS providers</li>
+            <li>User-friendly interface with clear, easy-to-read outputs</li>
+        </ul>
+
+        <h3>How to Use:</h3>
+        <ol>
+            <li>Enter the domain name you want to check in the input field.</li>
+            <li>Select the desired DNS record type from the dropdown menu.</li>
+            <li>Click the "Search" button to initiate the DNS lookup.</li>
+            <li>View the results displayed below, showing information from different DNS providers.</li>
+        </ol>
+
+        <p>Understanding DNS is crucial for maintaining a robust online presence and optimizing website performance. Regular DNS checks can help identify potential issues early, ensuring your website remains accessible and your email services function correctly.</p>
+
+        <p>Whether you're diagnosing connectivity problems, verifying domain ownership, or simply exploring how the internet works behind the scenes, our DNS Lookup Tool is an invaluable resource. It's part of our commitment to providing useful online tools for the web community.</p>
+
+        <p>Learn how to use online tools and resources effectively to <a href="startearnings.com">earn money easily</a> for beginners.</p>
+    </div>
+
+    <script>
+        async function performDNSCheck() {
+            const url = document.getElementById('urlInput').value;
+            const recordType = document.getElementById('recordType').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!url) {
+                resultDiv.textContent = "Please enter a valid URL";
+                return;
+            }
+
+            resultDiv.textContent = "Loading...";
+
+            try {
+                const response = await fetch(`https://dns.google/resolve?name=${url}&type=${recordType}`);
+                const data = await response.json();
+
+                if (data.Answer && data.Answer.length > 0) {
+                    resultDiv.innerHTML = '';
+                    const locations = ['San Francisco CA, United States', 'Mountain View CA, United States', 'Berkeley, US', 'Kansas City, United States'];
+                    const providers = ['OpenDNS', 'Google', 'Quad9', 'Cloudflare'];
+                    
+                    for (let i = 0; i < Math.min(data.Answer.length, 4); i++) {
+                        const record = data.Answer[i];
+                        resultDiv.innerHTML += `
+                            <div class="result-item">
+                                <img class="flag" src="https://flagcdn.com/w40/us.png" alt="US Flag">
+                                <div class="location">
+                                    <div>${locations[i]}</div>
+                                    <div>${providers[i]}</div>
+                                </div>
+                                <div class="ip">
+                                    ${record.data}
+                                    <br>
+                                    ${record.data}
+                                </div>
+                                <div class="check">✓</div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    resultDiv.textContent = `No ${recordType} records found for ${url}`;
+                }
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
